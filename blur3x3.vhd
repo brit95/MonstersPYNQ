@@ -244,7 +244,7 @@ architecture Behavioral of Video_Box is
 	  middle_right_next		<=(others =>'0');
 	  bottom_left_next		<=(others =>'0');
 	  bottom_middle_next	<=(others =>'0');
-	  bottom_right_next		<=(others =>'0');
+	  --bottom_right_next		<=(others =>'0');
 	  
 	  case current_s is
 		 when row0 =>        --when current state is "row0"
@@ -277,7 +277,7 @@ architecture Behavioral of Video_Box is
 				rd_en_top_next 		<= '1';
 				top_right_next		<= dout_top;
 				middle_right_next	<= dout_middle;
-				bottom_right_next	<= RGB_IN_I;
+				--bottom_right_next	<= RGB_IN_I;
 				next_s <= pass; -- go to pass
 			elsif(VS_IN_I ='1') then
 				next_s <= sentVS;
@@ -303,7 +303,7 @@ architecture Behavioral of Video_Box is
 				rd_en_top_next 		<= '1';
 				top_right_next		<= dout_top;
 				middle_right_next	<= dout_middle;
-				bottom_right_next	<= RGB_IN_I;
+				--bottom_right_next	<= RGB_IN_I;
 				--shift the 3x3 registers left
 				--top_middle_next 	<=top_right;
 				top_left_next		<=top_middle;
