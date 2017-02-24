@@ -109,7 +109,9 @@ architecture behavioral of rx_testbench is
     signal data_startup : boolean := false;
     signal start_transfer : std_logic := '0';
     signal data_to_transfer : std_logic_vector(23 downto 0);
-    
+    signal andy_is_the_best: integer;
+    signal cond1,cond2: integer;
+    signal start_flag : boolean := false;
     signal data_strobe_d : std_logic;
   
   -- Helper procedure for writing a string to stdout 
@@ -244,44 +246,57 @@ begin  -- behavioral
 	t_VB_IN_I <= '0';
 	t_ID_IN_I <= '0';
     t_VS_IN_I <= '0';
-
+    wait for PIXEL_TIME;
     write_String("--- Test #1 ---");
     for j in test_array_1'range loop
  
-      if(j mod PIXELS_PER_ROW = 14 and j /= PIXELS_PER_ROW*PIXELS_PER_ROW -2 ) then
-        wait for VDE_LOW_TIME;
-      end if;
+      --if(j mod PIXELS_PER_ROW = 14 and j /= PIXELS_PER_ROW*PIXELS_PER_ROW -2 ) then
+      --  wait for VDE_LOW_TIME;
+      --end if;
     
-      data_to_transfer <= test_array_1(j);
-      t_RGB_IN_I <= data_to_transfer;
-         t_RGB_IN_I <= data_to_transfer;
+      t_RGB_IN_I <= test_array_1(j);
+      --t_RGB_IN_I <= data_to_transfer;
+       --t_RGB_IN_I <= data_to_transfer;
       data_startup <= true;
       wait for PIXEL_TIME;
-      
+      andy_is_the_best <= j;
+      cond1 <= j mod PIXELS_PER_ROW;
+      cond2 <= 0;
+      if( (start_flag)and(j/=0)and ((j) mod PIXELS_PER_ROW = 0)) then
+         cond2 <= 1;
+        wait for VDE_LOW_TIME;
+        cond2 <= 0;
+      end if;
+      start_flag <= true;
     end loop;
+   
     data_startup <= false;
-
+    wait for PIXEL_TIME;
     write_string("--- Test Done ---");
     
-    wait for PIXEL_TIME;
-    wait for PIXEL_TIME;
+    
     t_VS_IN_I <= '1';
     wait for PIXEL_TIME;
     t_VS_IN_I <= '0';
     wait for PIXEL_TIME;
-    
+    start_flag <= false;
     write_String("--- Test #2 ---");
     for j in test_array_2'range loop
  
-      if(j mod PIXELS_PER_ROW = 14 and j /= PIXELS_PER_ROW*PIXELS_PER_ROW -2 ) then
-        wait for VDE_LOW_TIME;
-      end if;
-    
-      data_to_transfer <= test_array_2(j);
-      t_RGB_IN_I <= data_to_transfer;
-         t_RGB_IN_I <= data_to_transfer;
-      data_startup <= true;
-      wait for PIXEL_TIME;
+        t_RGB_IN_I <= test_array_2(j);
+         --t_RGB_IN_I <= data_to_transfer;
+          --t_RGB_IN_I <= data_to_transfer;
+         data_startup <= true;
+         wait for PIXEL_TIME;
+         andy_is_the_best <= j;
+         cond1 <= j mod PIXELS_PER_ROW;
+         cond2 <= 0;
+         if( (start_flag)and(j/=0)and ((j) mod PIXELS_PER_ROW = 0)) then
+            cond2 <= 1;
+           wait for VDE_LOW_TIME;
+           cond2 <= 0;
+         end if;
+         start_flag <= true;
       
     end loop;
     data_startup <= false;
