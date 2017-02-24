@@ -64,7 +64,6 @@ architecture behavioral of rx_testbench is
     signal t_X_Cord : std_logic_vector(15 downto 0);
     signal t_Y_Cord :  std_logic_vector(15 downto 0);
 
-    signal data_strobe_time : time;
     signal t_HS_IN_I_next : std_logic;
     signal t_VDE_IN_I_next : std_logic;
     signal clk_count : unsigned(9 downto 0) := (others=>'0');
