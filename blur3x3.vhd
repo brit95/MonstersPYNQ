@@ -191,7 +191,7 @@ architecture Behavioral of Video_Box is
 	  --wr_en_top 		<= wr_en_top_next;
 	  --din_top 			<= din_top_next;
 	  --rd_en_top 		<= rd_en_top_next;
-	  reset_top			<= reset_top_next;
+	  --reset_top			<= reset_top_next;
 	  
 	  --middle fifo signals
 	  --wr_en_middle 		<= wr_en_middle_next;
@@ -379,7 +379,7 @@ architecture Behavioral of Video_Box is
 	top_right		<= dout_top when ((VDE_IN_I = '1') and( next_s = beginRow or next_s = pass )) or (VDE_IN_I = '0' and VDE_Last_clk = '1') else
                           (others => '0');
                           
-    top_middle_next		<= dout_top when ((VDE_IN_I = '1') and( next_s = beginRow or next_s = pass )) or (VDE_IN_I = '0' and VDE_Last_clk = '1') else
+    top_middle_next		<= dout_top when ((VDE_IN_I = '1' and VDE_Last_clk = '1') and( next_s = beginRow or next_s = pass )) or (VDE_IN_I = '0' and VDE_Last_clk = '1') else
                                                     (others => '0');
 	
 	
@@ -433,6 +433,7 @@ architecture Behavioral of Video_Box is
 	blue <=			"00000000" when VDE = '0' else
 					"11111111" when blue_padded > 255 else
 					blue_padded(7 downto 0);
+					
 
 	RGB_IN_O 	<= STD_LOGIC_VECTOR(red(7 downto 0)) & STD_LOGIC_VECTOR(green(7 downto 0)) & STD_LOGIC_VECTOR(blue(7 downto 0));
 	VDE_IN_O	<= VDE;
