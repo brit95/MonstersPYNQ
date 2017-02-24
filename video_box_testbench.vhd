@@ -70,36 +70,15 @@ architecture behavioral of rx_testbench is
     signal clk_count : unsigned(9 downto 0) := (others=>'0');
     
     -- constants
-    constant CLK_PERIOD : time := 20 ns;
-    constant CLK_HALF_PERIOD : time := CLK_PERIOD / 2;
-    --constant UNINIT_STARTUP_TIME : time := 200 ns;
-    
-    --constant CLOCK_INIT_TIME : time := 500 ns;
-    --constant UNINITIALIZED_TIME : time := 500 ns;
-    
     constant CLOCK_PERIOD : time := 20 ns;
     constant HALF_CLOCK_PERIOD : time := CLOCK_PERIOD / 2;
-    --constant RESET_RELEASE_TIME : time := CLOCK_INIT_TIME + 500 ns;
-    
-    --constant VDE_HALF_PERIOD : time := 260 ns;    -- was 60ns
-    
-     constant PIXEL_CLKS : integer := 1;
-     constant PIXELS_PER_ROW : integer := 16;
-    
-    --constant PW_START : unsigned(9 downto 0) := to_unsigned(0, 10);
-    --constant BP_START : unsigned(9 downto 0) := to_unsigned(2, 10);
-    --constant DISP_START : unsigned(9 downto 0) := to_unsigned(6, 10);
-    --constant FP_START : unsigned(9 downto 0) := to_unsigned(22, 10);
-    
+    constant PIXEL_CLKS : integer := 1;
+    constant PIXELS_PER_ROW : integer := 16;
     constant VDE_LENGTH : unsigned(9 downto 0) := to_unsigned(PIXEL_CLKS * PIXELS_PER_ROW, 10);
     constant HS_START : unsigned(9 downto 0) := VDE_LENGTH + 1;
     constant HS_LENGTH : unsigned(9 downto 0) := to_unsigned(1, 10);
     constant VDE_START : unsigned(9 downto 0) := to_unsigned(PIXEL_CLKS, 10);
     constant SYNC_PULSE : unsigned(9 downto 0) := VDE_LENGTH + HS_LENGTH + 2;
-    
-    --constant BEFORE_DISPLAY_TIME : time := 6*CLOCK_PERIOD;
-    --constant AFTER_DISPLAY_TIME : time := 20*CLOCK_PERIOD;
-    
     constant PIXEL_TIME : time := PIXEL_CLKS*CLOCK_PERIOD;
     constant VDE_LOW_TIME : time := 3*CLOCK_PERIOD;
     
@@ -109,10 +88,7 @@ architecture behavioral of rx_testbench is
     signal data_startup : boolean := false;
     signal start_transfer : std_logic := '0';
     signal data_to_transfer : std_logic_vector(23 downto 0);
-    signal andy_is_the_best: integer;
-    signal cond1,cond2: integer;
     signal start_flag : boolean := false;
-    signal data_strobe_d : std_logic;
   
   -- Helper procedure for writing a string to stdout 
   procedure write_string(str : in String) is
@@ -186,9 +162,6 @@ begin  -- behavioral
     variable L : line;
     variable time_stamp : time;
     variable time_measure : time;
-    --type data_array_type is array (3 downto 0) of std_logic_vector(7 downto 0);
-    --variable data_to_transfer_list : data_array_type :=
-    --  ("01010101", "10101010", "11111111", "00000000");
     type data_array_type is array (255 downto 0) of std_logic_vector(23 downto 0);
     variable test_array_1 : data_array_type := (
     x"000000", x"010000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"080000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"0D0000", x"0E0000", x"0F0000",
@@ -241,7 +214,6 @@ begin  -- behavioral
     write_string("--- Start the clock, other signals uninitialized ---");
     clk_undefined <= false;
     clock_startup <= true;
-    --wait for CLOCK_INIT_TIME;
 	t_HB_IN_I <= '0';
 	t_VB_IN_I <= '0';
 	t_ID_IN_I <= '0';
@@ -250,22 +222,11 @@ begin  -- behavioral
     write_String("--- Test #1 ---");
     for j in test_array_1'range loop
  
-      --if(j mod PIXELS_PER_ROW = 14 and j /= PIXELS_PER_ROW*PIXELS_PER_ROW -2 ) then
-      --  wait for VDE_LOW_TIME;
-      --end if;
-    
       t_RGB_IN_I <= test_array_1(j);
-      --t_RGB_IN_I <= data_to_transfer;
-       --t_RGB_IN_I <= data_to_transfer;
       data_startup <= true;
       wait for PIXEL_TIME;
-      andy_is_the_best <= j;
-      cond1 <= j mod PIXELS_PER_ROW;
-      cond2 <= 0;
       if( (start_flag)and(j/=0)and ((j) mod PIXELS_PER_ROW = 0)) then
-         cond2 <= 1;
         wait for VDE_LOW_TIME;
-        cond2 <= 0;
       end if;
       start_flag <= true;
     end loop;
@@ -284,17 +245,10 @@ begin  -- behavioral
     for j in test_array_2'range loop
  
         t_RGB_IN_I <= test_array_2(j);
-         --t_RGB_IN_I <= data_to_transfer;
-          --t_RGB_IN_I <= data_to_transfer;
          data_startup <= true;
          wait for PIXEL_TIME;
-         andy_is_the_best <= j;
-         cond1 <= j mod PIXELS_PER_ROW;
-         cond2 <= 0;
          if( (start_flag)and(j/=0)and ((j) mod PIXELS_PER_ROW = 0)) then
-            cond2 <= 1;
            wait for VDE_LOW_TIME;
-           cond2 <= 0;
          end if;
          start_flag <= true;
       
@@ -308,7 +262,7 @@ begin  -- behavioral
     
   end process;
   
-  process(t_VDE_IN_O, t_clk)  --t_HS_IN_O,
+  process(t_VDE_IN_O, t_clk)
     variable L : line;
     variable time_stamp : time;
     variable time_measure : time;
@@ -349,7 +303,7 @@ begin  -- behavioral
     x"050000", x"060000", x"030000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"0D0000", x"0E0000", x"0A0000"
     --x"020000", x"020000", x"010000", x"010000", x"020000", x"030000", x"040000", x"040000", x"050000", x"060000", x"070000", x"070000", x"080000", x"090000", x"0A0000", x"070000"
     );
-	variable index : integer := 0; --(7 downto 0) := to_unsigned(0, 8);
+	variable index : integer := 0;
 	variable exp_output : std_logic_vector(23 downto 0);
 	variable r_data : std_logic_vector(23 downto 0);
 	variable hasOutData : boolean := false;
@@ -357,13 +311,9 @@ begin  -- behavioral
 	variable pixel_clk_counter : integer := 0;
 	
   begin
-    --if(t_VDE_IN_O'event and t_VDE_IN_O = '1') then
-    --  pixel_clk_counter := 0;
-    --end if;
   
     if(t_clk'event and t_clk='1') then
     
-       --if(pixel_clk_counter = 0 and t_VDE_IN_O = '1') then --t_HS_IN_O = '1') then   --DISP_START + 3 
        if(t_VDE_IN_O = '1') then
          exp_output := expected_output_1(index); --index;
          r_data := t_RGB_IN_O;
@@ -372,7 +322,7 @@ begin  -- behavioral
          writeline(output, L);
          if (r_data = exp_output) then
            --write(L, string'(" Successfully received the following pixel:"));
-           --write(L, r_data);
+           --hwrite(L, r_data);
            --writeline(output, L);
          else
            write(L, string'(" Failed filter. Expecting:0x"));
@@ -383,13 +333,6 @@ begin  -- behavioral
          end if;
          index := index + 1;
        end if;
---       if(t_VDE_IN_O = '1') then
---        if(pixel_clk_counter = PIXEL_CLKS-1) then
---            pixel_clk_counter := 0;
---        else
---            pixel_clk_counter := pixel_clk_counter + 1;
---        end if;
---       end if;
     end if;
   	
   end process;
@@ -397,7 +340,6 @@ begin  -- behavioral
   process(t_clk)
   begin
     if (t_clk'event and t_clk = '1') then
-      --data_strobe_d <= t_data_strobe;
       t_HS_IN_I <= t_HS_IN_I_next;
       t_VDE_IN_I <= t_VDE_IN_I_next;
     end if;
@@ -413,9 +355,7 @@ begin  -- behavioral
   		end if;
   	end if;
   end process;
-  
- -- t_HS_IN_I_next <= '1' when clk_count >= HS_START and clk_count < HS_START+HS_LENGTH else '0';
- -- t_VDE_IN_I_next <= '1' when clk_count < VDE_LENGTH and clock_startup = true else '0';
+ 
  t_HS_IN_I_next <= '1' when clk_count = VDE_LENGTH + 2 else '0';
  t_VDE_IN_I_next <= '1' when clk_count > 0 and clk_count <= VDE_LENGTH else '0';
   
