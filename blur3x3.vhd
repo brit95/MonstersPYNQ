@@ -197,7 +197,7 @@ architecture Behavioral of Video_Box is
 	  --wr_en_middle 		<= wr_en_middle_next;
 	  --din_middle 		<= din_middle_next;
 	  --rd_en_middle 		<= rd_en_middle_next;
-	  reset_middle		<= reset_middle_next; 
+	  --reset_middle		<= reset_middle_next; 
 	  
 	  --3x3 box
 	  top_left 			<= top_left_next;
@@ -433,6 +433,9 @@ architecture Behavioral of Video_Box is
 	blue <=			"00000000" when VDE = '0' else
 					"11111111" when blue_padded > 255 else
 					blue_padded(7 downto 0);
+					
+	reset_top <= '1' when VS_IN_I = '1' else '0';
+	reset_middle <= '1' when VS_IN_I = '1' else '0';
 					
 
 	RGB_IN_O 	<= STD_LOGIC_VECTOR(red(7 downto 0)) & STD_LOGIC_VECTOR(green(7 downto 0)) & STD_LOGIC_VECTOR(blue(7 downto 0));
