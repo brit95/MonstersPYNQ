@@ -326,18 +326,19 @@ begin  -- behavioral
                 write(L, string'("TESTBENCH PASSED!!"));
             end if;
             writeline(output, L);
+            index := index+1;
         end if;
        if(t_VDE_IN_O = '1') then
          exp_output := expected_output_1(index); --index;
          r_data := t_RGB_IN_O;
-         write(L, string'("Index is "));
-         write(L, integer'image(index));
-         writeline(output, L);
          if (r_data = exp_output) then
            --write(L, string'(" Successfully received the following pixel:"));
            --hwrite(L, r_data);
            --writeline(output, L);
          else
+           write(L, string'("Index is "));
+           write(L, integer'image(index));
+           writeline(output, L);
            write(L, string'(" Failed filter. Expecting:0x"));
            hwrite(L, exp_output);
            write(L, string'(" but received:0x"));
