@@ -68,12 +68,14 @@ architecture behavioral of rx_testbench is
     signal t_HS_IN_I_next : std_logic;
     signal t_VDE_IN_I_next : std_logic;
     signal clk_count : unsigned(9 downto 0) := (others=>'0');
+    signal done_sending_data : boolean := false;
     
     -- constants
     constant CLOCK_PERIOD : time := 20 ns;
     constant HALF_CLOCK_PERIOD : time := CLOCK_PERIOD / 2;
     constant PIXEL_CLKS : integer := 1;
     constant PIXELS_PER_ROW : integer := 16;
+    constant PIXELS_PER_COL : integer := 16;
     constant VDE_LENGTH : unsigned(9 downto 0) := to_unsigned(PIXEL_CLKS * PIXELS_PER_ROW, 10);
     constant HS_START : unsigned(9 downto 0) := VDE_LENGTH + 1;
     constant HS_LENGTH : unsigned(9 downto 0) := to_unsigned(1, 10);
@@ -81,6 +83,7 @@ architecture behavioral of rx_testbench is
     constant SYNC_PULSE : unsigned(9 downto 0) := VDE_LENGTH + HS_LENGTH + 2;
     constant PIXEL_TIME : time := PIXEL_CLKS*CLOCK_PERIOD;
     constant VDE_LOW_TIME : time := 3*CLOCK_PERIOD;
+    constant OUTPUT_ARRAY_LENGTH : integer := 2 * (PIXELS_PER_ROW*(PIXELS_PER_COL-1));  -- 2 test cases, ignoring last row
     
     -- internal signal states to manage state of clock
     signal clk_undefined : boolean := false;
@@ -162,7 +165,7 @@ begin  -- behavioral
     variable L : line;
     variable time_stamp : time;
     variable time_measure : time;
-    type data_array_type is array (255 downto 0) of std_logic_vector(23 downto 0);
+    type data_array_type is array ((PIXELS_PER_ROW*PIXELS_PER_COL)-1 downto 0) of std_logic_vector(23 downto 0);
     variable test_array_1 : data_array_type := (
     x"000000", x"010000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"080000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"0D0000", x"0E0000", x"0F0000",
     x"000000", x"010000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"080000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"0D0000", x"0E0000", x"0F0000",
@@ -256,6 +259,7 @@ begin  -- behavioral
     data_startup <= false;
 
     write_string("--- Test Done ---");
+    done_sending_data <= true;
 
     wait;
 
@@ -266,7 +270,8 @@ begin  -- behavioral
     variable L : line;
     variable time_stamp : time;
     variable time_measure : time;
-    type data_array_type is array (0 to 479) of std_logic_vector(23 downto 0);
+    type data_array_type is array (0 to OUTPUT_ARRAY_LENGTH-1) of std_logic_vector(23 downto 0);
+    variable failed : boolean := false;
     variable expected_output_1 : data_array_type := (
 
     x"000000", x"000000", x"010000", x"020000", x"030000", x"030000", x"040000", x"050000", x"060000", x"060000", x"070000", x"080000", x"090000", x"090000", x"0A0000", x"070000",
@@ -314,6 +319,14 @@ begin  -- behavioral
   
     if(t_clk'event and t_clk='1') then
     
+        if(index = OUTPUT_ARRAY_LENGTH) then
+            if(failed) then
+                write(L, string'("TESTBENCH FAILED!! See errors above."));
+            else
+                write(L, string'("TESTBENCH PASSED!!"));
+            end if;
+            writeline(output, L);
+        end if;
        if(t_VDE_IN_O = '1') then
          exp_output := expected_output_1(index); --index;
          r_data := t_RGB_IN_O;
@@ -330,6 +343,7 @@ begin  -- behavioral
            write(L, string'(" but received:0x"));
            hwrite(L, r_data);
            writeline(output, L);
+           failed := true;
          end if;
          index := index + 1;
        end if;
@@ -357,7 +371,7 @@ begin  -- behavioral
   end process;
  
  t_HS_IN_I_next <= '1' when clk_count = VDE_LENGTH + 2 else '0';
- t_VDE_IN_I_next <= '1' when clk_count > 0 and clk_count <= VDE_LENGTH else '0';
+ t_VDE_IN_I_next <= '1' when clk_count > 0 and clk_count <= VDE_LENGTH and done_sending_data = false else '0';
   
   -- Clock generation process
   t_clk <= not t_clk after HALF_CLOCK_PERIOD when clock_startup else
