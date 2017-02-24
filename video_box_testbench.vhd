@@ -312,7 +312,7 @@ begin  -- behavioral
     variable L : line;
     variable time_stamp : time;
     variable time_measure : time;
-    type data_array_type is array (0 to 511) of std_logic_vector(23 downto 0);
+    type data_array_type is array (0 to 479) of std_logic_vector(23 downto 0);
     variable expected_output_1 : data_array_type := (
 
     x"000000", x"000000", x"010000", x"020000", x"030000", x"030000", x"040000", x"050000", x"060000", x"060000", x"070000", x"080000", x"090000", x"090000", x"0A0000", x"070000",
@@ -330,7 +330,7 @@ begin  -- behavioral
     x"000000", x"010000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"0D0000", x"0E0000", x"0F0000", x"0A0000",
     x"000000", x"010000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"0D0000", x"0E0000", x"0F0000", x"0A0000",
     x"000000", x"010000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"0D0000", x"0E0000", x"0F0000", x"0A0000",
-    x"000000", x"000000", x"010000", x"020000", x"030000", x"030000", x"040000", x"050000", x"060000", x"060000", x"070000", x"080000", x"090000", x"090000", x"0A0000", x"070000",
+    --x"000000", x"000000", x"010000", x"020000", x"030000", x"030000", x"040000", x"050000", x"060000", x"060000", x"070000", x"080000", x"090000", x"090000", x"0A0000", x"070000",
     
     x"010000", x"010000", x"020000", x"030000", x"040000", x"040000", x"050000", x"060000", x"070000", x"070000", x"080000", x"090000", x"0A0000", x"080000", x"050000", x"020000",
     x"010000", x"030000", x"040000", x"050000", x"060000", x"070000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"0D0000", x"0E0000", x"0D0000", x"0A0000", x"060000", x"020000",
@@ -346,8 +346,8 @@ begin  -- behavioral
     x"090000", x"0E0000", x"0D0000", x"0A0000", x"060000", x"030000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"090000", x"0A0000", x"0B0000", x"070000",
     x"0A0000", x"0D0000", x"0A0000", x"060000", x"030000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"080000",
     x"080000", x"0A0000", x"060000", x"030000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"0D0000", x"090000",
-    x"050000", x"060000", x"030000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"0D0000", x"0E0000", x"0A0000",
-    x"020000", x"020000", x"010000", x"010000", x"020000", x"030000", x"040000", x"040000", x"050000", x"060000", x"070000", x"070000", x"080000", x"090000", x"0A0000", x"070000"
+    x"050000", x"060000", x"030000", x"020000", x"030000", x"040000", x"050000", x"060000", x"070000", x"090000", x"0A0000", x"0B0000", x"0C0000", x"0D0000", x"0E0000", x"0A0000"
+    --x"020000", x"020000", x"010000", x"010000", x"020000", x"030000", x"040000", x"040000", x"050000", x"060000", x"070000", x"070000", x"080000", x"090000", x"0A0000", x"070000"
     );
 	variable index : integer := 0; --(7 downto 0) := to_unsigned(0, 8);
 	variable exp_output : std_logic_vector(23 downto 0);
@@ -357,13 +357,14 @@ begin  -- behavioral
 	variable pixel_clk_counter : integer := 0;
 	
   begin
-    if(t_VDE_IN_O'event and t_VDE_IN_O = '1') then
-      pixel_clk_counter := 0;
-    end if;
+    --if(t_VDE_IN_O'event and t_VDE_IN_O = '1') then
+    --  pixel_clk_counter := 0;
+    --end if;
   
     if(t_clk'event and t_clk='1') then
     
-       if(pixel_clk_counter = 0 and t_VDE_IN_O = '1') then --t_HS_IN_O = '1') then   --DISP_START + 3 
+       --if(pixel_clk_counter = 0 and t_VDE_IN_O = '1') then --t_HS_IN_O = '1') then   --DISP_START + 3 
+       if(t_VDE_IN_O = '1') then
          exp_output := expected_output_1(index); --index;
          r_data := t_RGB_IN_O;
          write(L, string'("Index is "));
@@ -382,13 +383,13 @@ begin  -- behavioral
          end if;
          index := index + 1;
        end if;
-       if(t_VDE_IN_O = '1') then
-        if(pixel_clk_counter = PIXEL_CLKS-1) then
-            pixel_clk_counter := 0;
-        else
-            pixel_clk_counter := pixel_clk_counter + 1;
-        end if;
-       end if;
+--       if(t_VDE_IN_O = '1') then
+--        if(pixel_clk_counter = PIXEL_CLKS-1) then
+--            pixel_clk_counter := 0;
+--        else
+--            pixel_clk_counter := pixel_clk_counter + 1;
+--        end if;
+--       end if;
     end if;
   	
   end process;
